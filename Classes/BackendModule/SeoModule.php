@@ -31,6 +31,7 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 
@@ -470,13 +471,14 @@ class SeoModule extends \TYPO3\CMS\Backend\Module\AbstractFunctionModule
      */
     protected function loadPathCache($uidList)
     {
-
+		$table =  version_compare(ExtensionManagementUtility::getExtensionVersion('realurl'), '2.0', '<') ? 'tx_realurl_pathcache' : 'tx_realurl_pathdata';
+		
         // building where clause
         $where = ($this->langOnly || $this->langOnly === 0 ? ' AND language_id = ' . $this->langOnly : '');
 
         $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
             'page_id, language_id, pagepath',
-            'tx_realurl_pathcache',
+            $table,
             'page_id IN (' . $uidList . ') ' . $where,
             '',
             'language_id ASC, expire ASC'
